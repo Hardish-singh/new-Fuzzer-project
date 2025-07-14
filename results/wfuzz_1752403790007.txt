@@ -1,0 +1,20 @@
+Target: http://testphp.vulnweb.com/artists.php?FUZZ=1
+Total requests: 10
+==============================================================================================================================================
+ID    C.Time   Response   Lines      Word         Chars                  Server                                             Redirect   Payload    
+==============================================================================================================================================
+00001:  0.576s   C=00001:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "admin"
+00002:  0.280s   C=00002:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "login"
+00003:  0.281s   C=00003:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "test"
+00004:  1.373s   C=00004:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "api"
+00005:  0.555s   C=00005:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "user"
+00006:  0.282s   C=00006:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "backend"
+00007:  0.281s   C=00007:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "adminpanel"
+00008:  0.277s   C=00008:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "portal"
+00009:  1.189s   C=00009:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "console"
+00010:  0.281s   C=00010:  C=200    104 L	     386 W	   5328 Ch          nginx/1.19.0                                                        "config"
+
+Total time: 0
+Processed Requests: 10
+Filtered Requests: 0
+Requests/sec.: 0

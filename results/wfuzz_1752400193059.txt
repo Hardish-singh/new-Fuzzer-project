@@ -1,0 +1,17 @@
+********************************************************
+* Wfuzz 3.1.0 - The Web Fuzzer                         *
+********************************************************
+
+Target: %20http://testphp.vulnweb.com/artists.php?FUZZ=1http://localhost/FUZZ
+Total requests: 10
+
+=====================================================================
+ID        [0m   Response[0m   Lines [0m   Word    [0m   Chars    [0m   Payload                                                                                                                                                                   [0m
+=====================================================================
+
+
+Total time: 0
+Processed Requests: 0
+Filtered Requests: 0
+Requests/sec.: 0
+

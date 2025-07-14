@@ -1,0 +1,10 @@
+admin
+login
+test
+api
+user
+backend
+adminpanel
+portal
+console
+config

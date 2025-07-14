@@ -1,0 +1,35 @@
+COMMAND: wfuzz -w "/home/kalkiavtar/projects/Fuzzer-summerSchool-project/wordlists/common.txt" -u "http://testphp.vulnweb.com/artists.php?FUZZ=1" -f "/home/kalkiavtar/projects/Fuzzer-summerSchool-project/results/wfuzz_1752403790007.txt" --hc 404,500 --follow -s 1 -t 5 -v
+
+STDOUT:
+********************************************************
+* Wfuzz 3.1.0 - The Web Fuzzer                         *
+********************************************************
+
+Target: http://testphp.vulnweb.com/artists.php?FUZZ=1
+Total requests: 10
+
+====================================================================================================================================================
+ID        [0m   C.Time    [0m   Response[0m   Lines   [0m   Word  [0m   Chars    [0m   Server                        [0m   Redirect                      [0m   Payload                                                                                   [0m
+====================================================================================================================================================
+
+000000001:[0m   0.576s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "admin"                                                                                   [0m
+000000002:[0m   0.280s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "login"                                                                                   [0m
+000000003:[0m   0.281s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "test"                                                                                    [0m
+000000004:[0m   1.373s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "api"                                                                                     [0m
+000000005:[0m   0.555s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "user"                                                                                    [0m
+000000006:[0m   0.282s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "backend"                                                                                 [0m
+000000007:[0m   0.281s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "adminpanel"                                                                              [0m
+000000008:[0m   0.277s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "portal"                                                                                  [0m
+000000009:[0m   1.189s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "console"                                                                                 [0m
+000000010:[0m   0.281s    [0m   200     [0m   104 L   [0m   386 W [0m   5328 Ch  [0m   nginx/1.19.0                  [0m                                 [0m   "config"                                                                                  [0m
+
+Total time: 0
+Processed Requests: 10
+Filtered Requests: 0
+Requests/sec.: 0
+
+
+
+STDERR:
+ /usr/lib/python3/dist-packages/wfuzz/__init__.py:34: UserWarning:Pycurl is not compiled against Openssl. Wfuzz might not work correctly when fuzzing SSL sites. Check Wfuzz's documentation for more information.
+ /usr/lib/python3/dist-packages/wfuzz/ui/console/clparser.py:348: UserWarning:When using delayed requests concurrent requests are limited to 1, therefore the -s switch will be ignored.

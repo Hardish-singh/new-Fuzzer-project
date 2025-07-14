@@ -1,0 +1,17 @@
+Target: http://testphp.vulnweb.com/artists.php?FUZZ=1
+Total requests: 10
+==================================================================
+ID    Response   Lines      Word         Chars          Request    
+==================================================================
+00005:  C=200    104 L	     386 W	   5328 Ch	  "user"
+00009:  C=200    104 L	     386 W	   5328 Ch	  "console"
+00010:  C=200    104 L	     386 W	   5328 Ch	  "config"
+00008:  C=200    104 L	     386 W	   5328 Ch	  "portal"
+00006:  C=200    104 L	     386 W	   5328 Ch	  "backend"
+00007:  C=200    104 L	     386 W	   5328 Ch	  "adminpanel"
+00002:  C=200    104 L	     386 W	   5328 Ch	  "login"
+
+Total time: 0
+Processed Requests: 10
+Filtered Requests: 3
+Requests/sec.: 0
