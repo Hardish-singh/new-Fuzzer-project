@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, FileInput, FileOutput, ArrowLeft } from 'lucide-react';
+import { Loader2, FileInput, FileOutput, ArrowLeft, ExternalLink } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -26,7 +26,6 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
-import { ExternalLink } from 'lucide-react';
 
 export default function RadamsaPage() {
   const router = useRouter();
@@ -40,7 +39,15 @@ export default function RadamsaPage() {
   useEffect(() => {
     const q = query(collection(db, 'radamsa_jobs'), orderBy('createdAt', 'desc'));
     const unsub = onSnapshot(q, (snap) => {
-      setJobs(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      const jobsData = snap.docs.map((doc) => {
+        const data = doc.data();
+        return { 
+          id: doc.id, 
+          ...data,
+          createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt)
+        };
+      });
+      setJobs(jobsData);
     });
     return () => unsub();
   }, []);
@@ -66,29 +73,65 @@ export default function RadamsaPage() {
       });
 
       if (!res.ok) {
-        throw new Error(await res.text());
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Fuzzing failed');
       }
 
       const data = await res.json();
-      setFile(null);
+      // Optionally show success message
     } catch (err) {
       setError(err.message);
+      console.error('Fuzzing error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const formatBytes = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (!bytes || bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+const handleDownload = async (jobId, downloadAll = false) => {
+  try {
+    setError(null);
+    const url = `/api/fuzz/rad/download?jobId=${jobId}${
+      downloadAll ? '&all=true' : ''
+    }`;
+
+    // Create a temporary iframe for download
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    // Remove iframe after some time
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 10000);
+
+    // Fallback if iframe doesn't work
+    setTimeout(() => {
+      const links = document.querySelectorAll('a[href]');
+      const downloaded = Array.from(links).some(link => 
+        link.href === window.location.origin + url
+      );
+      if (!downloaded) {
+        window.open(url, '_blank');
+      }
+    }, 1000);
+  } catch (err) {
+    console.error('Download error:', err);
+    setError(err.message || 'Failed to initiate download');
+  }
+};
+
   // Prepare data for chart
   const chartData = jobs.map(job => ({
-    name: job.jobId,
+    name: job.jobId.substring(0, 8) + '...', // Shorten ID for display
     originalSize: job.originalSize / 1024, // Convert to KB
     fuzzedSize: job.fuzzedSize / 1024,    // Convert to KB
   }));
@@ -98,35 +141,28 @@ export default function RadamsaPage() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Radamsa Fuzzer</h2>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-       
-        <div className="flex gap-2 w-full md:w-auto">
-          <Button 
-            variant="outline" 
-            onClick={() => router.push('/dashboard')}
-            className="flex-1 md:flex-none"
-          >
-            Back to Dashboard
-          </Button>
-       
-           <div className="relative group">
-  <Button
-    variant="outline"
-    size="icon"
-    onClick={() => window.open('https://gitlab.com/akihe/radamsa', '_blank')}
-  >
-    <ExternalLink className="h-4 w-4" />
-  </Button>
-
-  {/* Hover badge */}
-  <span className="absolute top-10 left-1 -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs font-medium px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
-    Radamsa Docs
-  </span>
-</div>
-
-            
+          <div className="flex gap-2 w-full md:w-auto">
+            <Button 
+              variant="outline" 
+              onClick={() => router.push('/dashboard')}
+              className="flex-1 md:flex-none"
+            >
+              Back to Dashboard
+            </Button>
+            <div className="relative group">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => window.open('https://gitlab.com/akihe/radamsa', '_blank')}
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+              <span className="absolute top-10 left-1 -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs font-medium px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+                Radamsa Docs
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
-
       </div>
 
       {error && (
@@ -176,7 +212,7 @@ export default function RadamsaPage() {
             <div className="space-y-2">
               <label className="block text-sm font-medium">Seed (optional)</label>
               <Input 
-                type="number" 
+                type="text" 
                 value={seed}
                 onChange={(e) => setSeed(e.target.value)}
                 placeholder="Random seed for reproducibility"
@@ -207,79 +243,110 @@ export default function RadamsaPage() {
             <CardDescription>Original vs Fuzzed File Sizes</CardDescription>
           </CardHeader>
           <CardContent className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={chartData.slice(0, 10)} // Show only last 10 jobs
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={60} />
-                <YAxis label={{ value: 'Size (KB)', angle: -90, position: 'insideLeft' }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="originalSize" name="Original Size" fill="#3b82f6" />
-                <Bar dataKey="fuzzedSize" name="Fuzzed Size" fill="#10b981" />
-              </BarChart>
-            </ResponsiveContainer>
+            {jobs.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData.slice(0, 10)}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={60} />
+                  <YAxis label={{ value: 'Size (KB)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="originalSize" name="Original Size" fill="#3b82f6" />
+                  <Bar dataKey="fuzzedSize" name="Fuzzed Size" fill="#10b981" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500">No fuzzing data available</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Recent Jobs</h3>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Job ID</TableHead>
-              <TableHead>Original File</TableHead>
-              <TableHead>Fuzzed File</TableHead>
-              <TableHead>Size Change</TableHead>
-              <TableHead>Iterations</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {jobs.map((job) => (
-              <TableRow key={job.jobId}>
-                <TableCell className="font-mono text-sm">{job.jobId}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <FileInput className="w-4 h-4" />
-                    {job.originalFile}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <FileOutput className="w-4 h-4" />
-                    {formatBytes(job.fuzzedSize)}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={
-                    job.fuzzedSize > job.originalSize ? 'destructive' : 
-                    job.fuzzedSize < job.originalSize ? 'success' : 'outline'
-                  }>
-                    {((job.fuzzedSize - job.originalSize) / job.originalSize * 100).toFixed(2)}%
-                  </Badge>
-                </TableCell>
-                <TableCell>{job.iterations}</TableCell>
-                <TableCell>
-                  {new Date(job.createdAt?.toDate?.() || job.createdAt).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => window.open(job.downloadUrl, '_blank')}
-                  >
-                    Download
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {jobs.length > 0 ? (
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Job ID</TableHead>
+                  <TableHead>Original File</TableHead>
+                  <TableHead>Fuzzed File</TableHead>
+                  <TableHead>Size Change</TableHead>
+                  <TableHead>Iterations</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {jobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell className="font-mono text-sm">
+                      {job.jobId.substring(0, 8)}...
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <FileInput className="w-4 h-4" />
+                        {job.originalFile}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <FileOutput className="w-4 h-4" />
+                        {formatBytes(job.fuzzedSize)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        job.fuzzedSize > job.originalSize ? 'destructive' : 
+                        job.fuzzedSize < job.originalSize ? 'success' : 'outline'
+                      }>
+                        {job.originalSize > 0 ? 
+                          ((job.fuzzedSize - job.originalSize) / job.originalSize * 100).toFixed(2) + '%' : 
+                          'N/A'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{job.iterations || 'N/A'}</TableCell>
+                    <TableCell>
+                      {job.createdAt?.toLocaleString?.() || 'Unknown date'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleDownload(job.jobId)}
+                        >
+                          Download
+                        </Button>
+                        {job.fuzzedFiles?.length > 1 && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDownload(job.jobId, true)}
+                          >
+                            Download All ({job.fuzzedFiles.length})
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-6 text-center text-gray-500">
+              No fuzzing jobs found
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
