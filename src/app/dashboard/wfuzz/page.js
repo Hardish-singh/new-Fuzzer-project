@@ -7,6 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { ExternalLink } from 'lucide-react';
 
 const parseRawOutput = (rawOutput = '', target = '') => {
   if (!rawOutput) return [];
@@ -121,6 +128,35 @@ export default function WfuzzPage() {
 
   return (
     <div className="p-6 space-y-6">
+       <div className="flex justify-end w-full">
+  <div className="flex gap-2 flex-row">
+    <Button 
+      variant="outline" 
+      onClick={() => router.push('/dashboard')}
+    >
+      Back to Dashboard
+    </Button>
+
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => window.open('https://github.com/ffuf/ffuf', '_blank')}
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>WFUZZ Documentation</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>
+</div>
+
+
       <h2 className="text-2xl font-bold">WFuzz Scanner</h2>
       
       <div className="grid gap-4 md:grid-cols-3">
@@ -148,7 +184,7 @@ export default function WfuzzPage() {
           </p>
         </div>
         
-        <div className="flex items-end">
+        <div className="flex items-center">
           <Button 
             className="w-full" 
             disabled={loading || !target.includes('FUZZ')} 

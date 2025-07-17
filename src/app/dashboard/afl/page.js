@@ -12,6 +12,13 @@ import { toast } from 'react-hot-toast';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, FileInput, FileOutput, Clock, Bug, Gauge, Activity, Cpu, Memory, Zap, Terminal, Brain, BrainCircuit } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { ExternalLink } from 'lucide-react';
 
 export default function AFLPage() {
   const [cfile, setCFile] = useState(null);
@@ -177,9 +184,35 @@ export default function AFLPage() {
           <Zap className="w-6 h-6 text-yellow-500" />
           AFL++ Fuzzing Dashboard
         </h1>
-        <Button onClick={() => router.push('/dashboard/fuzz')}>
-          Back to Fuzzing Tools
-        </Button>
+       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        
+        <div className="flex gap-2 w-full md:w-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard')}
+            className="flex-1 md:flex-none"
+          >
+            Back to Dashboard
+          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => window.open('https://github.com/AFLplusplus/AFLplusplus', '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>AFL++ Documentation</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
       </div>
 
       <Card className="border border-blue-100">

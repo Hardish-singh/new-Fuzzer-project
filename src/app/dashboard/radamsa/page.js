@@ -11,7 +11,6 @@ import { Loader2, FileInput, FileOutput, ArrowLeft } from 'lucide-react';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -27,6 +26,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { ExternalLink } from 'lucide-react';
 
 export default function RadamsaPage() {
   const router = useRouter();
@@ -97,14 +97,36 @@ export default function RadamsaPage() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Radamsa Fuzzer</h2>
-        <Button 
-          variant="outline" 
-          onClick={() => router.push('/dashboard')}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </Button>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+       
+        <div className="flex gap-2 w-full md:w-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard')}
+            className="flex-1 md:flex-none"
+          >
+            Back to Dashboard
+          </Button>
+       
+           <div className="relative group">
+  <Button
+    variant="outline"
+    size="icon"
+    onClick={() => window.open('https://gitlab.com/akihe/radamsa', '_blank')}
+  >
+    <ExternalLink className="h-4 w-4" />
+  </Button>
+
+  {/* Hover badge */}
+  <span className="absolute top-10 left-1 -translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs font-medium px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+    Radamsa Docs
+  </span>
+</div>
+
+            
+        </div>
+      </div>
+
       </div>
 
       {error && (

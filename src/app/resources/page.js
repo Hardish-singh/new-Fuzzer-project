@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Tools } from '@/lib/constants';
 import { Rocket, Zap, Shield, Clock, BarChart2, ChevronRight, ExternalLink } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const resources = [
   {
@@ -63,12 +64,13 @@ export default function DashboardHome() {
               <CardContent className="flex-1">
                 <div className="flex flex-wrap gap-2 mb-3">
                   {tags?.map(tag => (
-                    <div 
+                    <Badge 
                       key={tag} 
-                      className={`text-xs px-2 py-1 rounded-md border border-${category}-200 text-${category}-800 bg-${category}-50`}
+                      variant="outline" 
+                      className={`text-xs capitalize border-${category}-200 text-${category}-800`}
                     >
                       {tag}
-                    </div>
+                    </Badge>
                   ))}
                 </div>
                 
@@ -96,9 +98,9 @@ export default function DashboardHome() {
                 <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
                   Learn more <ExternalLink className="h-4 w-4 ml-1" />
                 </Button>
-                <div className="px-2 py-1 text-xs rounded-md bg-muted text-muted-foreground">
+                <Badge variant="secondary" className="px-2 py-1 text-xs">
                   {complexity}
-                </div>
+                </Badge>
               </CardFooter>
             </Card>
           </Link>

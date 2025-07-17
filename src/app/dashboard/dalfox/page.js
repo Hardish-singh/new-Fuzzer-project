@@ -8,6 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, ShieldAlert, ArrowLeft } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { ExternalLink } from 'lucide-react';
 
 export default function DalfoxPage() {
   const router = useRouter();
@@ -100,13 +107,35 @@ export default function DalfoxPage() {
           <ShieldAlert className="text-red-600" />
           Dalfox XSS Scanner
         </h2>
-        <Button 
-          variant="outline" 
-          onClick={() => router.push('/dashboard')}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
-        </Button>
+     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+       
+        <div className="flex gap-2 w-full md:w-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard')}
+            className="flex-1 md:flex-none"
+          >
+            Back to Dashboard
+          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => window.open('https://github.com/hahwul/dalfox', '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>DALFOX Documentation</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
       </div>
 
       {error && (
